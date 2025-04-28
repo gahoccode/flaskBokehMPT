@@ -1,5 +1,6 @@
 flask==3.0.3
-bokeh==3.4.0
+bokeh==3.3.4
+gunicorn==21.2.0
 vnstock==3.2.2
 ruff==0.3.7
 rich==13.7.1

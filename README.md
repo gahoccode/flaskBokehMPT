@@ -37,12 +37,23 @@
 - All tests must pass before deployment.
 
 ## Deployment
-- Procfile included for Heroku-style deployment:
-  - `web: gunicorn app:app`
-- Set environment variables (e.g., `SECRET_KEY`) via Heroku config or `.env` file (not committed).
-- All dependencies are pinned in requirements.txt and pyproject.toml.
-- To deploy:
-  1. Ensure all tests pass and code is linted (ruff).
+
+### Deploying to Render
+
+1. **Connect your GitHub repository to Render**
+2. Render will auto-detect your Python project and use your `requirements.txt` and `Procfile`/`render.yaml`.
+3. Ensure your `Procfile` contains:
+   ```
+   web: gunicorn "app:create_app()"
+   ```
+   Or use the provided `render.yaml` for infrastructure-as-code deployment.
+4. Set environment variables (e.g., `SECRET_KEY`) in the Render dashboard for security.
+5. On deployment, Render will run `uv pip install -r requirements.txt` and launch the app using Gunicorn.
+
+**Notes:**
+- No Heroku-specific configuration is needed.
+- The app uses the Flask application factory pattern for maximum flexibility.
+- For static files, ensure the `/static` directory is present and referenced in your templates.
   2. Push to your deployment platform (Heroku, Render, etc.).
   3. Static files and templates are served by Flask; Bokeh output is generated as HTML.
 

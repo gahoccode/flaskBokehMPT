@@ -105,13 +105,16 @@ _Progress will be updated as each subtask is completed._
 - Price history line chart now uses the original price DataFrame, so each stock appears as a distinct colored line over time.
 - Each asset line uses a different color for clarity (Category10 palette).
 - Flask debug mode enabled for immediate code reloads and error display during development.
+- Added gunicorn to requirements.txt for Render production deployment support.
+- Removed fallback for SECRET_KEY; application now requires SECRET_KEY to be set in the environment for security.
 
 ### Added
 - Asset price history line chart: Added a Bokeh line chart to visualize historical asset prices as part of the optimization results page. This chart appears above the efficient frontier and portfolio composition pie charts for a more comprehensive analysis. (2025-04-28)
 - **[Task 9: Testing Suite]** Unit test ([tests/test_bokeh_html_output.py](tests/test_bokeh_html_output.py)) to verify that Bokeh visualizations can be saved as HTML and are compatible with Flask's send_file for serving as a redirected route. The test checks file creation, HTML validity, Bokeh script presence, and correct MIME type for browser rendering.
 - **[Task 9: Testing Suite]** Unit tests ([tests/test_data_loader.py](tests/test_data_loader.py)) for DataLoader covering data cleaning, date filtering, error handling, and warnings. Tests use a datetime index and pytest fixtures for robust and reproducible coverage.
 - **[Task 9: Testing Suite]** Unit tests ([tests/test_plots.py](tests/test_plots.py)) for Bokeh visualization helpers, covering efficient frontier, weights bar, and combined layout plot generation. Tests use dummy data fixtures and dynamic type checks for robust and version-independent validation.
-- **[Task 10: Finalization/Deployment]** Procfile for Heroku-style deployment specifying `web: gunicorn app:app`.
+- **[Task 10: Finalization/Deployment]** Procfile for Render deployment specifying `web: gunicorn "app:create_app()"` (Flask app factory pattern).
+- App and dependencies are now fully Render-ready. See README for Render deployment steps.
 
 ### Changed
 - **[Task 10: Finalization/Deployment]** Full integration test suite run: all unit, integration, and visualization tests pass (18/18). Application is verified production-ready for deployment.

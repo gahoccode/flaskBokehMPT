@@ -28,7 +28,7 @@ node_modules/
 tasks.json
 tasks/ 
 README-task-master.md
-
+/scripts
 # Output files
 output.html
 output/

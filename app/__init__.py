@@ -8,7 +8,7 @@ def create_app():
     base_dir = os.path.abspath(os.path.dirname(__file__))
     template_dir = os.path.abspath(os.path.join(base_dir, '..', 'templates'))
     app = Flask(__name__, template_folder=template_dir)
-    app.config['SECRET_KEY'] = 'replace-this-with-a-secure-random-key'
+    app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
     app.config['DEBUG'] = True  # Enable debug mode for development
     app.config['TEMPLATES_AUTO_RELOAD'] = True
 
