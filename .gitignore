@@ -28,5 +28,27 @@ node_modules/
 tasks.json
 tasks/ 
 README-task-master.md
-#Output files
+
+# Output files
 output.html
+output/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.sqlite3
+*.db
+*.bak
+*.tmp
+*.log
+
+# Virtual environments
+venv/
+.venv/
+ENV/
+
+# Bokeh and Flask artifacts
+instance/
+*.bokeh
+*.bokeh-html
+*.bak.html
