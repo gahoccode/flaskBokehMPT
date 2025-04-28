@@ -39,7 +39,7 @@ from math import pi
 from bokeh.palettes import Category20
 from bokeh.models import ColumnDataSource
 
-def weights_pie_chart(weights_dict, asset_names, label):
+def weights_pie_chart(weights_dict, asset_names, label, width=600):
     """
     Create a pie chart of asset weights for a given optimal portfolio.
     Args:
@@ -57,7 +57,7 @@ def weights_pie_chart(weights_dict, asset_names, label):
         'color': Category20[len(asset_names)] if len(asset_names) <= 20 else Category20[20] * (len(asset_names) // 20 + 1)
     }
     source = ColumnDataSource(data)
-    p = figure(height=400, width=600, title=f"{label} Portfolio Weights (Pie Chart)", toolbar_location=None,
+    p = figure(height=400, width=width, title=f"{label} Portfolio Weights (Pie Chart)", toolbar_location=None,
                tools="hover", tooltips="@asset: @weight{0.00%}", x_range=(-0.5, 1.0))
     p.wedge(x=0, y=1, radius=0.4,
             start_angle=cumsum('angle', include_zero=True), end_angle=cumsum('angle'),
@@ -67,19 +67,48 @@ def weights_pie_chart(weights_dict, asset_names, label):
     return p
 
 
-def combined_layout(df, optimal):
+def plot_price_history(df):
     """
-    Combine all plots into a single layout for output.
+    Plot the historical price series for each asset.
+    Args:
+        df (pd.DataFrame): Portfolio metrics DataFrame or price DataFrame
+    Returns:
+        bokeh.plotting.Figure
+    """
+    from bokeh.plotting import figure
+    p = figure(title="Asset Price History", x_axis_label="Date", y_axis_label="Price",
+               width=800, height=300, x_axis_type='auto')
+    # Only plot asset columns (exclude metrics)
+    asset_names = [name for name in df.columns if name not in ['Return', 'Risk', 'Sharpe']]
+    from bokeh.palettes import Category10
+    palette = Category10[10] if len(asset_names) <= 10 else Category10[10] * (len(asset_names) // 10 + 1)
+    for i, asset in enumerate(asset_names):
+        if asset in df:
+            p.line(df.index, df[asset], legend_label=asset, color=palette[i])
+    p.legend.click_policy = "hide"
+    return p
+
+
+def combined_layout(df, optimal, price_data=None):
+    """
+    Combine all plots into a 2x2 grid layout for output.
+    Col 1: Efficient frontier
+    Col 2: Price history line chart on top, three pie charts horizontally below
     Args:
         df (pd.DataFrame): Portfolio metrics DataFrame
         optimal (dict): Dict of optimal portfolios
+        price_data (pd.DataFrame): Original price DataFrame
     Returns:
         bokeh.layouts.LayoutDOM
     """
+    from bokeh.layouts import row, column
     asset_names = [name for name in df.columns if name not in ['Return', 'Risk', 'Sharpe']]
     frontier = efficient_frontier_plot(df, optimal)
-    pie_max_sharpe = weights_pie_chart(optimal['max_sharpe'], asset_names, 'Max Sharpe')
-    pie_min_var = weights_pie_chart(optimal['min_variance'], asset_names, 'Min Variance')
-    pie_max_return = weights_pie_chart(optimal['max_return'], asset_names, 'Max Return')
-    return column(frontier, pie_max_sharpe, pie_min_var, pie_max_return)
-
+    price_chart = plot_price_history(price_data if price_data is not None else df)
+    pie_chart_width = 266  # 800px (line chart width) / 3
+    pie_max_sharpe = weights_pie_chart(optimal['max_sharpe'], asset_names, 'Max Sharpe', width=pie_chart_width)
+    pie_min_var = weights_pie_chart(optimal['min_variance'], asset_names, 'Min Variance', width=pie_chart_width)
+    pie_max_return = weights_pie_chart(optimal['max_return'], asset_names, 'Max Return', width=pie_chart_width)
+    pie_row = row(pie_max_sharpe, pie_min_var, pie_max_return)
+    right_column = column(price_chart, pie_row)
+    return row(frontier, right_column)

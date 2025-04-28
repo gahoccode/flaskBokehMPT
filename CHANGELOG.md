@@ -102,6 +102,7 @@ _Progress will be updated as each subtask is completed._
 ## [Unreleased]
 
 ### Added
+- Asset price history line chart: Added a Bokeh line chart to visualize historical asset prices as part of the optimization results page. This chart appears above the efficient frontier and portfolio composition pie charts for a more comprehensive analysis. (2025-04-28)
 - **[Task 9: Testing Suite]** Unit test ([tests/test_bokeh_html_output.py](tests/test_bokeh_html_output.py)) to verify that Bokeh visualizations can be saved as HTML and are compatible with Flask's send_file for serving as a redirected route. The test checks file creation, HTML validity, Bokeh script presence, and correct MIME type for browser rendering.
 - **[Task 9: Testing Suite]** Unit tests ([tests/test_data_loader.py](tests/test_data_loader.py)) for DataLoader covering data cleaning, date filtering, error handling, and warnings. Tests use a datetime index and pytest fixtures for robust and reproducible coverage.
 - **[Task 9: Testing Suite]** Unit tests ([tests/test_plots.py](tests/test_plots.py)) for Bokeh visualization helpers, covering efficient frontier, weights bar, and combined layout plot generation. Tests use dummy data fixtures and dynamic type checks for robust and version-independent validation.

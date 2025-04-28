@@ -9,6 +9,8 @@ def create_app():
     template_dir = os.path.abspath(os.path.join(base_dir, '..', 'templates'))
     app = Flask(__name__, template_folder=template_dir)
     app.config['SECRET_KEY'] = 'replace-this-with-a-secure-random-key'
+    app.config['DEBUG'] = True  # Enable debug mode for development
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
 
     @app.route("/", methods=["GET"])
     def main():
@@ -99,7 +101,7 @@ def create_app():
         session['last_inputs'] = dict(symbols=symbols, start_date=start_date, end_date=end_date, num_portfolios=num_portfolios, risk_free_rate=risk_free_rate)
 
         # Generate Bokeh HTML output
-        layout = combined_layout(metrics, optimal)
+        layout = combined_layout(metrics, optimal, price_data=price_data)
         output_path = os.path.join(os.getcwd(), 'output.html')
         output_file(output_path, title="Portfolio Optimization Results")
         save(layout)
