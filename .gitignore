@@ -27,6 +27,6 @@ node_modules/
 # Task files
 tasks.json
 tasks/ 
-
+README-task-master.md
 #Output files
 output.html
