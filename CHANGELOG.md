@@ -107,6 +107,8 @@ _Progress will be updated as each subtask is completed._
 - Flask debug mode enabled for immediate code reloads and error display during development.
 - Added gunicorn to requirements.txt for Render production deployment support.
 - Removed fallback for SECRET_KEY; application now requires SECRET_KEY to be set in the environment for security.
+- Refactored to use top-level app = Flask(__name__) instead of app factory pattern for deployment simplicity (Procfile now uses app:app).
+- Updated .env.example: Cleaned up, now only includes Flask/Render deployment variables (PYTHON_VERSION, PORT, HOST).
 
 ### Added
 - Asset price history line chart: Added a Bokeh line chart to visualize historical asset prices as part of the optimization results page. This chart appears above the efficient frontier and portfolio composition pie charts for a more comprehensive analysis. (2025-04-28)

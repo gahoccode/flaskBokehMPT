@@ -3,42 +3,50 @@ from flask import Flask
 from rich import print
 import os
 
-def create_app():
-    """Flask application factory."""
-    base_dir = os.path.abspath(os.path.dirname(__file__))
-    template_dir = os.path.abspath(os.path.join(base_dir, '..', 'templates'))
-    app = Flask(__name__, template_folder=template_dir)
-    app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
-    app.config['DEBUG'] = True  # Enable debug mode for development
-    app.config['TEMPLATES_AUTO_RELOAD'] = True
+# app/__init__.py
+from flask import Flask
+from rich import print
+import os
 
-    @app.route("/", methods=["GET"])
-    def main():
-        from flask import render_template, request, get_flashed_messages
-        error = request.args.get('error')
-        messages = get_flashed_messages()
-        return render_template("index.html", error=error, messages=messages)
+base_dir = os.path.abspath(os.path.dirname(__file__))
+template_dir = os.path.abspath(os.path.join(base_dir, '..', 'templates'))
+app = Flask(__name__, template_folder=template_dir)
+app.config['SECRET_KEY'] = os.environ['SECRET_KEY']
+app.config['DEBUG'] = True  # Enable debug mode for development
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 
-    @app.route("/optimize", methods=["POST"])
-    def optimize():
-        """
-        Handle optimization form submission, validate inputs, run backend logic, generate Bokeh HTML, and serve it.
-        """
-        from flask import request, send_file, redirect, url_for, flash, session
-        import os
-        import pandas as pd
-        from app.data_loader import DataLoader, DataLoaderError
-        from app.portfolio_optimizer import PortfolioOptimizer, PortfolioOptimizerError
-        from app.plots import combined_layout
-        from bokeh.plotting import output_file, save
-        from rich import print as rich_print
-        import re
+if __name__ == "__main__":
+    port = int(os.getenv('PORT', 5000))  # Default to 5000 if PORT not set
+    app.run(host='0.0.0.0', port=port)
 
-        # Parse and validate form data
-        symbols_raw = request.form.get('symbols', '').strip()
-        start_date = request.form.get('start_date', '').strip()
-        end_date = request.form.get('end_date', '').strip()
-        num_portfolios_raw = request.form.get('num_portfolios', '').strip()
+@app.route("/", methods=["GET"])
+def main():
+    from flask import render_template, request, get_flashed_messages
+    error = request.args.get('error')
+    messages = get_flashed_messages()
+    return render_template("index.html", error=error, messages=messages)
+
+@app.route("/optimize", methods=["POST"])
+def optimize():
+    """
+    Handle optimization form submission, validate inputs, run backend logic, generate Bokeh HTML, and serve it.
+    """
+    from flask import request, send_file, redirect, url_for, flash, session
+    import os
+    import pandas as pd
+    from app.data_loader import DataLoader, DataLoaderError
+    from app.portfolio_optimizer import PortfolioOptimizer, PortfolioOptimizerError
+    from app.plots import combined_layout
+    from bokeh.plotting import output_file, save
+    from rich import print as rich_print
+    import re
+
+    # Parse and validate form data
+    symbols_raw = request.form.get('symbols', '').strip()
+    start_date = request.form.get('start_date', '').strip()
+    end_date = request.form.get('end_date', '').strip()
+    num_portfolios_raw = request.form.get('num_portfolios', '').strip()
+
         risk_free_rate_raw = request.form.get('risk_free_rate', '').strip()
 
         # Validate symbols
