@@ -34,20 +34,38 @@ def efficient_frontier_plot(df, optimal):
     p.legend.click_policy = "hide"
     return p
 
-def weights_bar_plot(optimal, asset_names):
+from bokeh.transform import cumsum
+from math import pi
+from bokeh.palettes import Category20
+from bokeh.models import ColumnDataSource
+
+def weights_pie_chart(weights_dict, asset_names, label):
     """
-    Create bar plot of asset weights for the max Sharpe ratio portfolio.
+    Create a pie chart of asset weights for a given optimal portfolio.
     Args:
-        optimal (dict): Dict of optimal portfolios
+        weights_dict (dict): Dict of weights for a portfolio
         asset_names (list): List of asset names
+        label (str): Title label for the chart
     Returns:
         bokeh.plotting.Figure
     """
-    weights = [optimal['max_sharpe'][name] for name in asset_names]
-    p = figure(x_range=asset_names, title="Max Sharpe Portfolio Weights",
-               width=600, height=400, y_axis_label="Weight")
-    p.vbar(x=asset_names, top=weights, width=0.6, color="orange")
+    weights = [weights_dict[name] for name in asset_names]
+    data = {
+        'asset': asset_names,
+        'weight': weights,
+        'angle': [w * 2 * pi for w in weights],
+        'color': Category20[len(asset_names)] if len(asset_names) <= 20 else Category20[20] * (len(asset_names) // 20 + 1)
+    }
+    source = ColumnDataSource(data)
+    p = figure(height=400, width=600, title=f"{label} Portfolio Weights (Pie Chart)", toolbar_location=None,
+               tools="hover", tooltips="@asset: @weight{0.00%}", x_range=(-0.5, 1.0))
+    p.wedge(x=0, y=1, radius=0.4,
+            start_angle=cumsum('angle', include_zero=True), end_angle=cumsum('angle'),
+            line_color="white", fill_color='color', legend_field='asset', source=source)
+    p.axis.visible = False
+    p.grid.grid_line_color = None
     return p
+
 
 def combined_layout(df, optimal):
     """
@@ -60,5 +78,8 @@ def combined_layout(df, optimal):
     """
     asset_names = [name for name in df.columns if name not in ['Return', 'Risk', 'Sharpe']]
     frontier = efficient_frontier_plot(df, optimal)
-    weights = weights_bar_plot(optimal, asset_names)
-    return column(frontier, weights)
+    pie_max_sharpe = weights_pie_chart(optimal['max_sharpe'], asset_names, 'Max Sharpe')
+    pie_min_var = weights_pie_chart(optimal['min_variance'], asset_names, 'Min Variance')
+    pie_max_return = weights_pie_chart(optimal['max_return'], asset_names, 'Max Return')
+    return column(frontier, pie_max_sharpe, pie_min_var, pie_max_return)
+
