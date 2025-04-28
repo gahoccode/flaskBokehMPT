@@ -7,6 +7,9 @@ import os
 from flask import Flask
 from rich import print
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 base_dir = os.path.abspath(os.path.dirname(__file__))
 template_dir = os.path.abspath(os.path.join(base_dir, '..', 'templates'))
@@ -46,25 +49,33 @@ def optimize():
     start_date = request.form.get('start_date', '').strip()
     end_date = request.form.get('end_date', '').strip()
     num_portfolios_raw = request.form.get('num_portfolios', '').strip()
+    risk_free_rate_raw = request.form.get('risk_free_rate', '').strip()
 
-        risk_free_rate_raw = request.form.get('risk_free_rate', '').strip()
+    # Validate symbols
+    if not symbols_raw:
+        flash("Please enter at least one stock symbol.", "error")
+        return redirect(url_for('main'))
+    symbols = [s.strip().upper() for s in symbols_raw.split(',') if s.strip()]
+    if not symbols or any(not re.match(r'^[A-Z0-9.\-]+$', s) for s in symbols):
+        flash("Invalid symbol(s) detected. Use only letters, numbers, dashes, or dots.", "error")
+        return redirect(url_for('main'))
 
-        # Validate symbols
-        if not symbols_raw:
-            flash("Please enter at least one stock symbol.", "error")
-            return redirect(url_for('main'))
-        symbols = [s.strip().upper() for s in symbols_raw.split(',') if s.strip()]
-        if not symbols or any(not re.match(r'^[A-Z0-9.\-]+$', s) for s in symbols):
-            flash("Invalid symbol(s) detected. Use only letters, numbers, dashes, or dots.", "error")
-            return redirect(url_for('main'))
+    # Validate dates
+    if not start_date or not end_date:
+        flash("Please provide both start and end dates.", "error")
+        return redirect(url_for('main'))
+    if start_date > end_date:
+        flash("Start date must be before end date.", "error")
+        return redirect(url_for('main'))
 
-        # Validate dates
-        if not start_date or not end_date:
-            flash("Please provide both start and end dates.", "error")
-            return redirect(url_for('main'))
-        if start_date > end_date:
-            flash("Start date must be before end date.", "error")
-            return redirect(url_for('main'))
+    # Validate num_portfolios
+    try:
+        num_portfolios = int(num_portfolios_raw)
+        if not (100 <= num_portfolios <= 10000):
+            raise ValueError
+    except Exception:
+        flash("Number of portfolios must be an integer between 100 and 10,000.", "error")
+        return redirect(url_for('main'))
 
         # Validate num_portfolios
         try:
