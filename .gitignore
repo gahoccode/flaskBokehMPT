@@ -27,6 +27,7 @@ node_modules/
 # Task files
 tasks.json
 tasks/ 
+<<<<<<< HEAD
 README-task-master.md
 /scripts
 # Output files
@@ -52,3 +53,8 @@ instance/
 *.bokeh
 *.bokeh-html
 *.bak.html
+=======
+
+#Output files
+output.html
+>>>>>>> parent of 3907db9 (Add plots module and update gitignore)

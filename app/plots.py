@@ -67,17 +67,15 @@ def weights_pie_chart(weights_dict, asset_names, label, width=600):
     return p
 
 
-def plot_price_history(df, max_sharpe_weights=None):
+def plot_price_history(df):
     """
-    Plot the historical price series for each asset, and optionally the max Sharpe portfolio price line.
+    Plot the historical price series for each asset.
     Args:
-        df (pd.DataFrame): Asset price DataFrame (indexed by date)
-        max_sharpe_weights (dict or None): Asset weights for max Sharpe ratio portfolio
+        df (pd.DataFrame): Portfolio metrics DataFrame or price DataFrame
     Returns:
         bokeh.plotting.Figure
     """
     from bokeh.plotting import figure
-    import numpy as np
     p = figure(title="Asset Price History", x_axis_label="Date", y_axis_label="Price",
                width=800, height=300, x_axis_type='auto')
     # Only plot asset columns (exclude metrics)
@@ -87,15 +85,8 @@ def plot_price_history(df, max_sharpe_weights=None):
     for i, asset in enumerate(asset_names):
         if asset in df:
             p.line(df.index, df[asset], legend_label=asset, color=palette[i])
-    # Add max Sharpe portfolio price line if weights provided
-    if max_sharpe_weights is not None:
-        weights = np.array([max_sharpe_weights[name] for name in asset_names])
-        portfolio_price = (df[asset_names] * weights).sum(axis=1)
-        p.line(df.index, portfolio_price, legend_label='Max Sharpe Portfolio', color='black', line_width=3, line_dash='dashed')
-    p.legend.location = "top_left"
     p.legend.click_policy = "hide"
     return p
-
 
 
 def combined_layout(df, optimal, price_data=None):
@@ -113,11 +104,7 @@ def combined_layout(df, optimal, price_data=None):
     from bokeh.layouts import row, column
     asset_names = [name for name in df.columns if name not in ['Return', 'Risk', 'Sharpe']]
     frontier = efficient_frontier_plot(df, optimal)
-    max_sharpe_weights = None
-    if optimal and 'max_sharpe' in optimal:
-        # Extract only weights for asset columns
-        max_sharpe_weights = {k: v for k, v in optimal['max_sharpe'].items() if k in asset_names}
-    price_chart = plot_price_history(price_data if price_data is not None else df, max_sharpe_weights=max_sharpe_weights)
+    price_chart = plot_price_history(price_data if price_data is not None else df)
     pie_chart_width = 266  # 800px (line chart width) / 3
     pie_max_sharpe = weights_pie_chart(optimal['max_sharpe'], asset_names, 'Max Sharpe', width=pie_chart_width)
     pie_min_var = weights_pie_chart(optimal['min_variance'], asset_names, 'Min Variance', width=pie_chart_width)
