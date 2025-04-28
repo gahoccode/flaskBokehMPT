@@ -101,6 +101,11 @@ _Progress will be updated as each subtask is completed._
 
 ## [Unreleased]
 
+### Changed
+- Price history line chart now uses the original price DataFrame, so each stock appears as a distinct colored line over time.
+- Each asset line uses a different color for clarity (Category10 palette).
+- Flask debug mode enabled for immediate code reloads and error display during development.
+
 ### Added
 - Asset price history line chart: Added a Bokeh line chart to visualize historical asset prices as part of the optimization results page. This chart appears above the efficient frontier and portfolio composition pie charts for a more comprehensive analysis. (2025-04-28)
 - **[Task 9: Testing Suite]** Unit test ([tests/test_bokeh_html_output.py](tests/test_bokeh_html_output.py)) to verify that Bokeh visualizations can be saved as HTML and are compatible with Flask's send_file for serving as a redirected route. The test checks file creation, HTML validity, Bokeh script presence, and correct MIME type for browser rendering.
